@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<!-- 必须加上这一句，否则 th 不可用 -->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+    <meta charset="UTF-8" />
+    <title>Title</title>
+</head>
+<body>
+<!--
+    Thymeleaf 主要以属性的方式加入到html标签中，浏览器在解析html时，当检查到没有属性的时候会忽略，所以 Thymeleaf的模板可以通
+    过浏览器直接打开展现，这样非常有利于前后端的分离。
+
+    th:text 标签只能接收传递的参数，不能另外拼接字符串，会解析失败。并且如果当传递有数据时，就显示数据，则后面的 welcome 就不
+    显示了。
+-->
+
+<!--/*@thymesVar id="test" type="java.lang.String"*/-->
+<h1 th:text="${test}"></h1>
+<!--<span th:text="|Welcome to our application, ${test}!|" >-->
+<h1>welcome you!</h1>
+</body>
+</html>
