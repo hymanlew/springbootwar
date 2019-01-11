@@ -1,6 +1,7 @@
 package com.hyman.springbootwar;
 
 import com.hyman.springbootwar.service.UserService;
+import com.hyman.springbootwar.util.LogUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -8,10 +9,31 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.Resource;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class SpringbootwarApplicationTests {
+
+	@Resource
+	private DataSource dataSource;
+
+	@Test
+	public void test0() {
+		try {
+			LogUtil.logger.info("====== "+dataSource.getClass());
+
+			Connection connection = dataSource.getConnection();
+			LogUtil.logger.info("====== "+connection);
+			connection.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+
 
 	/**
 	 * 是利用原生态的方式，Spring的 JdbcTemplate是自动配置的，你可以直接使用 @Autowired 来注入到你自己的bean中来使用。

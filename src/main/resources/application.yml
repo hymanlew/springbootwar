@@ -1,0 +1,46 @@
+
+# java.sql.SQLException: The server time zone value 'ÖÐ¹ú±ê×¼Ê±¼ä' is unrecognized..，该异常是在使用 MySQL 8.0以上版本
+#（MySQL连接驱动和版本都是8.0以上）的时候出现的问题错误，需要在 Url后面加上 serverTimezone=GMT%2B8 即可。
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/test?serverTimezone=GMT%2B8
+    username: root
+    password: 123456
+    type: com.alibaba.druid.pool.DruidDataSource
+    schema:
+      - classpath:sql/table.sql
+      - classpath:sql/data.sql
+
+# 如果是使用 boot 2.0 以上的版本，就必须加上下面一句，否则不会执行 sql 文件。
+    initialization-mode: always
+
+#   数据源其他配置
+    initialSize: 5
+    minIdle: 5
+    maxActive: 20
+    maxWait: 60000
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: SELECT 1 FROM DUAL
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+#   配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+    filters: stat,wall,log4j
+    maxPoolPreparedStatementPerConnectionSize: 20
+    useGlobalDataSourceStat: true
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=500
+
+
+  jpa:
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: update
+
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+    show-sql: true
+

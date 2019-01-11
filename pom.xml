@@ -53,6 +53,7 @@
 		</dependency>
 
 		<!-- 原生的连接数据库的 jdbc 接口格式-->
+		<!-- 此处引入 jdbc 只能测试底层用的，demo，实际环境下不会直接用底层技术的，而是 mybatis -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-jdbc</artifactId>
@@ -62,7 +63,6 @@
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.21</version>
 		</dependency>
 
 		<!-- 基于 Hibernate 的数据库处理包 -->
@@ -95,6 +95,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
 			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>druid</artifactId>
+			<version>1.0.16</version>
 		</dependency>
 	</dependencies>
 
