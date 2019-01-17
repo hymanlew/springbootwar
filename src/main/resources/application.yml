@@ -11,7 +11,7 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
     schema:
       - classpath:sql/table.sql
-      - classpath:sql/data.sql
+#      - classpath:sql/data.sql
 
 # 如果是使用 boot 2.0 以上的版本，就必须加上下面一句，否则不会执行 sql 文件。
     initialization-mode: always
@@ -38,9 +38,14 @@ spring:
   jpa:
     properties:
       hibernate:
-        hbm2ddl:
-          auto: update
-
+#       更新或创建数据库表结构
+        ddl-auto: update
+#       每次加载hibernate时，验证创建数据库表结构，只会和数据库中的表进行比较，不会创建新表，但是会插入新值。
         dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+#   控制台输出 sql 语句
     show-sql: true
 
+hyman:
+  hello:
+    prefix: '自定义'
+    suffix: 'starter'

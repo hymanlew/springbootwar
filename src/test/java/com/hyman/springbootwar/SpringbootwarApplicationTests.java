@@ -34,7 +34,6 @@ public class SpringbootwarApplicationTests {
 	}
 
 
-
 	/**
 	 * 是利用原生态的方式，Spring的 JdbcTemplate是自动配置的，你可以直接使用 @Autowired 来注入到你自己的bean中来使用。
 	 */

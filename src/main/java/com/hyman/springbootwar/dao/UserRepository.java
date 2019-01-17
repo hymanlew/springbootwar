@@ -1,6 +1,7 @@
-package com.hyman.springbootwar.Jpa;
+package com.hyman.springbootwar.dao;
 
 import com.hyman.springbootwar.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -26,12 +27,12 @@ import org.springframework.data.repository.query.Param;
  * id 自增到与主键不冲突时才能正常插入数据。
  *
  * 所以不能使用  JpaRepository，而是使用其父接口 CrudRepository，其save方法是相当于 merge+save ，它会先判断记录是否存在，如果
- * 存在则更新，不存在则插入记录。
+ * 存在则更新，不存在则插入记录（与实体类中主键的生成策略有关）。
  */
 
-//public interface UserRepository extends JpaRepository<User,Integer> {
-
-public interface UserRepository extends CrudRepository<User,Integer> {
+//JpaRepository<实体类名，实体类主键类型>
+//public interface UserRepository extends CrudRepository<User,Integer> {
+public interface UserRepository extends JpaRepository<User,Integer> {
 
     /**
      * 可以看到我们这里没有任何类SQL语句就完成了两个条件查询方法。这就是Spring-data-jpa的一大特性：通过解析方法名创建查询。
