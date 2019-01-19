@@ -4,6 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
 
 /**
  * 使用外置的 Servlet 容器：
@@ -23,7 +25,13 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
  * jar包：执行SpringBoot主类的main方法，启动ioc容器，创建嵌入式的Servlet容器；
  * war包：启动服务器，服务器启动SpringBoot应用（SpringBootServletInitializer），启动ioc容器；
  */
+
+/**
+ * 当引入 redis-starter 后，容器中保存的是 RedisCashManager，并且它创建 rediscache 作为缓存组件。rediscache 通过操作 redis 来缓存数据。
+ * 即一旦引入 redis-starter，则 springboot 就默认把 redis 当作缓存，它是全自动配置的。
+ */
 @SpringBootApplication
+@EnableCaching
 public class SpringbootwarApplication {
 
 	public static void main(String[] args) {

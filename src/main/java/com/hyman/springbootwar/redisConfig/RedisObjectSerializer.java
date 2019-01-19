@@ -1,4 +1,4 @@
-package com.hyman.springbootwar.redisDemo;
+package com.hyman.springbootwar.redisConfig;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.serializer.support.DeserializingConverter;
@@ -7,9 +7,7 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
 
 /**
- * 除了String类型，实战中我们还经常会在Redis中存储对象，这时候我们就会想是否可以使用类似RedisTemplate<String, User>来初始化并进行操作。
- * 但是Spring Boot并不支持直接使用，需要我们自己实现 RedisSerializer<T> 即序列化接口来对传入对象进行序列化和反序列化。
- *
+ * 除了String类型，还可以存储对象，使用类似 RedisTemplate<String, User> 来初始化并进行操作。
  * converter ：变流器，转化器；
  */
 public class RedisObjectSerializer implements RedisSerializer<Object>{

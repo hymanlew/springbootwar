@@ -1,11 +1,16 @@
 package com.hyman.springbootwar;
 
+import com.hyman.springbootwar.entity.User;
 import com.hyman.springbootwar.service.UserService;
 import com.hyman.springbootwar.util.LogUtil;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.Resource;
@@ -92,8 +97,8 @@ public class SpringbootwarApplicationTests {
 		userService.deleteByName("c");
 		//Assert.assertEquals(5,userService.getAllUsers().intValue());
 	}
-	//
-	//
+
+
 	///**
 	// * Spring-data-jpa的出现正可以让这样一个已经很“薄”的数据访问层变成只是一层接口的编写方式。
 	// * 我们只需要通过编写一个继承自 JpaRepository的接口就能完成数据访问，Spring-data-jpa 依赖于 Hibernate。
@@ -118,53 +123,66 @@ public class SpringbootwarApplicationTests {
 	//	//Assert.assertEquals(10,userRepository.findAll().size());
 	//	Assert.assertEquals(10,userRepository.count());
 	//}
-	//
-	//
-	///**
-	// * 自动配置的 StringRedisTemplate 对象进行Redis的读写操作，该对象从命名中就可注意到支持的是String类型。如果有使用过
-	// * spring-data-redis 的开发者一定熟悉 RedisTemplate<K, V> 接口，StringRedisTemplate 就相当于 RedisTemplate<String, String>
-	// * 的实现。
-	// */
-	//@Resource
-	//private StringRedisTemplate stringRedisTemplate;
-	//
-	//@Test
-	//public void test2(){
-	//	stringRedisTemplate.opsForValue().set("aaa","111");
-	//	Assert.assertEquals("111",stringRedisTemplate.opsForValue().get("aaa"));
-	//}
-	//
-	//
-	///**
-	// * 除了String类型，实战中我们还经常会在Redis中存储对象，这时候我们就会想是否可以使用类似RedisTemplate<String, User>来初始化并进行操作。
-	// * 但是Spring Boot并不支持直接使用，需要我们自己实现 RedisSerializer<T> 即序列化接口来对传入对象进行序列化和反序列化。
-	// *
-	// * converter ：变流器，转化器；
-	// *
-	// * Redis五大类型:字符串（String）、哈希/散列/字典（Hash）、列表（List）、集合（Set）、有序集合（sorted set），相应的操作方法：
-	// *
-	// * redisTemplate.opsForValue();		//操作字符串
-	// * redisTemplate.opsForHash();		//操作hash
-	// * redisTemplate.opsForList();		//操作list
-	// * redisTemplate.opsForSet();		//操作set
-	// * redisTemplate.opsForZSet();		//操作有序set
-	// *
-	// * 并且在每种类型操作方法之内还有更加细的具体操作方法，如 set，get 这种。
-	// */
-	//@Resource
-	//private RedisTemplate<String,User> redisTemplate;
-	//
-	//@Test
-	//public void test3(){
-	//
-	//	User user = new User("man", 20);
-	//	redisTemplate.opsForValue().set(user.getName(),user);
-	//
-	//	user = new User("girl", 30);
-	//	redisTemplate.opsForValue().set(user.getName(),user);
-	//
-	//	Assert.assertEquals(20,redisTemplate.opsForValue().get("man").getAge().intValue());
-	//	Assert.assertEquals(30,redisTemplate.opsForValue().get("girl").getAge().intValue());
-	//}
+
+
+	/**
+	 * 自动配置的 StringRedisTemplate 对象进行Redis的读写操作，该对象从命名中就可注意到支持的是String类型。如果有使用过
+	 * spring-data-redis 的开发者一定熟悉 RedisTemplate<K, V> 接口，StringRedisTemplate 就相当于 RedisTemplate<String, String>
+	 * 的实现。
+	 */
+	@Autowired
+	private StringRedisTemplate stringRedisTemplate;
+
+	@Test
+	public void test2(){
+		stringRedisTemplate.opsForValue().set("aaa","111");
+		Assert.assertEquals("111",stringRedisTemplate.opsForValue().get("aaa"));
+	}
+
+
+	/**
+	 * 除了String类型，还可以存储对象，使用类似 RedisTemplate<String, User> 来初始化并进行操作。
+	 * converter ：变流器，转化器；
+	 *
+	 * Redis五大类型:字符串（String）、哈希/散列（Hash）、列表（List）、集合（Set）、有序集合（sorted set/Zset），相应的操作方法：
+	 *
+	 * redisTemplate.opsForValue();		//操作字符串
+	 * redisTemplate.opsForHash();		//操作hash
+	 * redisTemplate.opsForList();		//操作list
+	 * redisTemplate.opsForSet();		//操作set
+	 * redisTemplate.opsForZSet();		//操作有序set
+	 *
+	 * 并且在每种类型操作方法之内还有更加细的具体操作方法，如 set，get 这种。
+	 */
+	@Resource
+	private RedisTemplate<String,User> redisTemplate;
+	@Resource
+	private RedisTemplate<String,User> myRedisTemplate;
+
+	@Test
+	public void test3(){
+		/**
+		 * 在 redisConfig 包中的类是在低版本 redis-starter 中，对对象的存储需要自定义序列化的。但在高版本中，全部是自动配置的。
+		 * 保存对象的机制，默认是使用 JDK 的序列化机制。
+		 */
+		User user = new User("man", 20);
+		redisTemplate.opsForValue().set(user.getName(),user);
+
+		user = new User("girl", 30);
+		redisTemplate.opsForValue().set(user.getName(),user);
+
+		Assert.assertEquals(20,redisTemplate.opsForValue().get("man").getAge().intValue());
+		Assert.assertEquals(30,redisTemplate.opsForValue().get("girl").getAge().intValue());
+
+
+		user = new User("jman", 20);
+		myRedisTemplate.opsForValue().set(user.getName(),user);
+
+		user = new User("jgirl", 30);
+		myRedisTemplate.opsForValue().set(user.getName(),user);
+		LogUtil.logger.info("==== 存储对象成功 ====");
+	}
+
+
 }
 
