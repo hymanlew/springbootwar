@@ -27,8 +27,10 @@ spring:
 # 在 192.168.1.153:9200 的响应体中有这些信息,es的http端口是9200，但是java节点端口是9300
   data:
     elasticsearch:
+#     名称必须与 9200 访问到的名称相同
       cluster-name: elasticsearch
       cluster-nodes: 192.168.1.153:9300
+#      使用默认的仓库
       repositories:
         enabled: true
 
@@ -36,9 +38,4 @@ spring:
     jest:
       uris: http://192.168.1.153:9200
 
-
-# 由于本项目使用两了 springdata 的实现：jpa 与 ES，而且它们的父级都是 PagingAndSortingRepository 和 CrudRepository。springdata
-# 提供了各种数据库数据访问的封装(mongo、redis、oracle、mysql、jpa、elasticsearch等等等等)。他们封装的格式基本一样；所以会起冲突。
-#  main:
-#    allow-bean-definition-overriding: true
 

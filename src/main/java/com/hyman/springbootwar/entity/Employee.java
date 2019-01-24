@@ -4,19 +4,19 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 
-// 索引库名，类型名。
+// 索引库名，类型名。必须为小写
 //@Document(indexName = "hymanEm",type = "employee", shards = 1,replicas = 0, refreshInterval = "-1")
-@Document(indexName = "hymanEm",type = "employee")
+@Document(indexName = "hymanem",type = "employee")
 public class Employee {
     @Id
     private Integer id;
-    //@Field
+    @Field
     private String firstName;
-    //@Field
+    @Field
     private String lastName;
-    //@Field
+    @Field
     private Integer age = 0;
-    //@Field
+    @Field
     private String about;
 
     public Employee() {

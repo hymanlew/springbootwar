@@ -237,11 +237,8 @@ public class SpringbootwarApplicationTests {
 		// 构建一个索引，索引（存储）的数据文档，索引库名，类型名，指定文档 id。
         LogUtil.logger.info("========"+empRepository.toString());
 		empRepository.index(employee);
-		//empRepository.save(employee);
-		//elasticsearchTemplate.index().
 		LogUtil.logger.info("==== 存储对象成功 ====");
 
-		//http://192.168.1.153:9200/hymanEm/employee/_search
 
 		try {
 			Thread.sleep(1000);

@@ -123,9 +123,7 @@
 
         （2）优点：将原生API进行封装，提供了ElasticsearchRepository，操作ES非常简单，与JPA同理。缺点：出生于Spring家族，与SpringBoot，SpringData版本容易冲突
 
-			打印查看 es 服务器上的日志，boot 中的日志，从 parent 中看版本号
-
-		elasticsearch.yml文件：
+		修改 docker 容器中 config 中的 elasticsearch.yml文件（最好只做修改不要随便添加，只删除注释即可）：
 			cluster.name: 集群名称
 			node.name: 节点名称
 			path.data: 数据文件的路径
@@ -133,6 +131,11 @@
 			bootstrap.memory_lock: true 启动时是否锁内存，建议锁内存
 			network.host 绑定ip地址，默认0.0.0.0表示所有地址，绑定了ip地址，将暴露在公网中，注意安全防护
 			http.port:9200 端口号
+			http.cors.enabled: true
+			http.cors.allow-origin: "*"
+			transport.tcp.port: 9300
+
+		打印查看 es 服务器上的日志，boot 中的日志，从 parent 中看版本号
 			-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
