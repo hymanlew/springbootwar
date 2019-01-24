@@ -1,14 +1,23 @@
 package com.hyman.springbootwar;
 
+import com.hyman.springbootwar.dao.UserRepository;
+import com.hyman.springbootwar.entity.Employee;
 import com.hyman.springbootwar.entity.User;
+import com.hyman.springbootwar.esconfig.EmpRepository;
 import com.hyman.springbootwar.service.UserService;
 import com.hyman.springbootwar.util.LogUtil;
+import io.searchbox.client.JestClient;
+import io.searchbox.core.Index;
+import io.searchbox.core.Search;
+import io.searchbox.core.SearchResult;
+import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -17,6 +26,7 @@ import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Iterator;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -24,7 +34,6 @@ public class SpringbootwarApplicationTests {
 
 	@Resource
 	private DataSource dataSource;
-
 	@Test
 	public void test0() {
 		try {
@@ -44,12 +53,10 @@ public class SpringbootwarApplicationTests {
 	 */
 	@Resource
 	private UserService userService;
-
 	@Before
 	public void out(){
 		System.out.println("准备测试！");
 	}
-
 	@Test
 	public void test() {
 		//userService.create("a",1);
@@ -99,30 +106,30 @@ public class SpringbootwarApplicationTests {
 	}
 
 
-	///**
-	// * Spring-data-jpa的出现正可以让这样一个已经很“薄”的数据访问层变成只是一层接口的编写方式。
-	// * 我们只需要通过编写一个继承自 JpaRepository的接口就能完成数据访问，Spring-data-jpa 依赖于 Hibernate。
-	// */
-	//@Resource
-	//private UserRepository userRepository;
-	//
-	//@Test
-	//public void test1(){
-	//	//由于 JpaRepository 已经自身集成了增删查改四个方法，所以直接使用即可。
-	//	//userRepository.save(new User(null,"A2",10));
-	//	//userRepository.save(new User(null,"B2",20));
-	//	//userRepository.save(new User(null,"C2",30));
-	//
-	//	Assert.assertEquals(11,userRepository.count());
-	//	Assert.assertEquals(20,userRepository.findUser("B2").getAge().intValue());
-	//	Assert.assertEquals(30,userRepository.findByNameAndAge("C2",30).getAge().intValue());
-	//
-	//	userRepository.delete(userRepository.findByName("A2"));
-	//
-	//	// 此方法 size() 是 JpaRepository 的方法，当前实现的接口不可用。
-	//	//Assert.assertEquals(10,userRepository.findAll().size());
-	//	Assert.assertEquals(10,userRepository.count());
-	//}
+	/**
+	 * Spring-data-jpa的出现正可以让这样一个已经很“薄”的数据访问层变成只是一层接口的编写方式。
+	 * 我们只需要通过编写一个继承自 JpaRepository的接口就能完成数据访问，Spring-data-jpa 依赖于 Hibernate。
+	 */
+	@Resource
+	private UserRepository userRepository;
+
+	@Test
+	public void test1(){
+		//由于 JpaRepository 已经自身集成了增删查改四个方法，所以直接使用即可。
+		//userRepository.save(new User(null,"A2",10));
+		//userRepository.save(new User(null,"B2",20));
+		//userRepository.save(new User(null,"C2",30));
+
+		Assert.assertEquals(11,userRepository.count());
+		Assert.assertEquals(20,userRepository.findUser("B2").getAge().intValue());
+		Assert.assertEquals(30,userRepository.findByNameAndAge("C2",30).getAge().intValue());
+
+		userRepository.delete(userRepository.findByName("A2"));
+
+		// 此方法 size() 是 JpaRepository 的方法，当前实现的接口不可用。
+		//Assert.assertEquals(10,userRepository.findAll().size());
+		Assert.assertEquals(10,userRepository.count());
+	}
 
 
 	/**
@@ -132,13 +139,11 @@ public class SpringbootwarApplicationTests {
 	 */
 	@Autowired
 	private StringRedisTemplate stringRedisTemplate;
-
 	@Test
 	public void test2(){
 		stringRedisTemplate.opsForValue().set("aaa","111");
 		Assert.assertEquals("111",stringRedisTemplate.opsForValue().get("aaa"));
 	}
-
 
 	/**
 	 * 除了String类型，还可以存储对象，使用类似 RedisTemplate<String, User> 来初始化并进行操作。
@@ -158,7 +163,6 @@ public class SpringbootwarApplicationTests {
 	private RedisTemplate<String,User> redisTemplate;
 	@Resource
 	private RedisTemplate<String,User> myRedisTemplate;
-
 	@Test
 	public void test3(){
 		/**
@@ -183,6 +187,74 @@ public class SpringbootwarApplicationTests {
 		LogUtil.logger.info("==== 存储对象成功 ====");
 	}
 
+
+	@Resource
+	private JestClient jestClient;
+	@Test
+	public void insertES(){
+		User user = new User(1,"man", 20);
+
+		// 构建一个索引，索引（存储）的数据文档，索引库名，类型名，指定文档 id。
+		Index index = new Index.Builder(user).index("hyman1").type("users").id(user.getId()+"").build();
+		try {
+			jestClient.execute(index);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		LogUtil.logger.info("==== 存储对象成功 ====");
+	}
+	@Test
+	public void searchES(){
+		String json = "{\n" +
+				"    \"query\" : {\n" +
+				"        \"match\" : {\n" +
+				"            \"name\" : \"man\"\n" +
+				"        }\n" +
+				"    }\n" +
+				"}";
+
+		// 搜索文档，索引（存储）的数据文档，索引库名，类型名。
+		Search search = new Search.Builder(json).addIndex("hyman1").addType("users").build();
+		try {
+			SearchResult result = jestClient.execute(search);
+			LogUtil.logger.info("===== "+ result.getJsonString());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+
+	@Resource
+	private EmpRepository empRepository;
+
+    @Test
+	public void insertU(){
+        /**
+         * 不可运行，有异常
+         */
+		Employee employee = new Employee(1,"man", "20");
+
+		// 构建一个索引，索引（存储）的数据文档，索引库名，类型名，指定文档 id。
+        LogUtil.logger.info("========"+empRepository.toString());
+		empRepository.index(employee);
+		//empRepository.save(employee);
+		//elasticsearchTemplate.index().
+		LogUtil.logger.info("==== 存储对象成功 ====");
+
+		//http://192.168.1.153:9200/hymanEm/employee/_search
+
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		QueryStringQueryBuilder builder = new QueryStringQueryBuilder("man");
+		Iterable<Employee> searchResult = empRepository.search(builder);
+		Iterator<Employee> iterator = searchResult.iterator();
+		while (iterator.hasNext()){
+			LogUtil.logger.info("======="+iterator.next());
+		}
+	}
 
 }
 

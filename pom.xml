@@ -109,6 +109,42 @@
 			<artifactId>hyman-spring-boot-starter</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
+
+		<!--
+		全文检索，Spring Boot 通过整合 Spring Data ElasticSearch 提供了非常便捷的检索功能支持（默认的）。
+
+		Elasticsearch JAVA操作有三种客户端：
+			1、TransportClient。2、JestClient。3、RestClient
+
+		Java与ElasticSearch连接的两种方式：（1）使用Transport与ElasticSearch建立连接。（2）使用SpringDataElasticSearch连接连接
+
+		两种方式的优缺点：
+		（1）优点：脱离框架，集成过程中不需要考虑与Spring的版本兼容问题，容易集成。缺点：使用原生API操作ES，代码量大，撰写困难
+
+        （2）优点：将原生API进行封装，提供了ElasticsearchRepository，操作ES非常简单，与JPA同理。缺点：出生于Spring家族，与SpringBoot，SpringData版本容易冲突
+
+			打印查看 es 服务器上的日志，boot 中的日志，从 parent 中看版本号
+
+		elasticsearch.yml文件：
+			cluster.name: 集群名称
+			node.name: 节点名称
+			path.data: 数据文件的路径
+			path.logs: 日志文件的路径
+			bootstrap.memory_lock: true 启动时是否锁内存，建议锁内存
+			network.host 绑定ip地址，默认0.0.0.0表示所有地址，绑定了ip地址，将暴露在公网中，注意安全防护
+			http.port:9200 端口号
+			-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+		</dependency>
+		<!-- ES 的 jest 所需包 -->
+		<dependency>
+			<groupId>io.searchbox</groupId>
+			<artifactId>jest</artifactId>
+		</dependency>
+
+
 	</dependencies>
 
 	<build>

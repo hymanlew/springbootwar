@@ -29,7 +29,9 @@ import org.springframework.cache.annotation.EnableCaching;
 /**
  * 当引入 redis-starter 后，容器中保存的是 RedisCashManager，并且它创建 rediscache 作为缓存组件。rediscache 通过操作 redis 来缓存数据。
  * 即一旦引入 redis-starter，则 springboot 就默认把 redis 当作缓存，它是全自动配置的。
+ * 但其对象的保存都是使用 JDK 进行保存的。
  */
+
 @SpringBootApplication
 @EnableCaching
 public class SpringbootwarApplication {
