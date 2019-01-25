@@ -17,13 +17,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.Resource;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import javax.sql.DataSource;
+import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Iterator;
@@ -226,30 +231,60 @@ public class SpringbootwarApplicationTests {
 
 	@Resource
 	private EmpRepository empRepository;
-
     @Test
 	public void insertU(){
-        /**
-         * 不可运行，有异常
-         */
 		Employee employee = new Employee(1,"man", "20");
 
 		// 构建一个索引，索引（存储）的数据文档，索引库名，类型名，指定文档 id。
-        LogUtil.logger.info("========"+empRepository.toString());
 		empRepository.index(employee);
+		//empRepository.save(employee);
 		LogUtil.logger.info("==== 存储对象成功 ====");
-
 
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		// 按照关键字搜索
 		QueryStringQueryBuilder builder = new QueryStringQueryBuilder("man");
 		Iterable<Employee> searchResult = empRepository.search(builder);
 		Iterator<Employee> iterator = searchResult.iterator();
 		while (iterator.hasNext()){
 			LogUtil.logger.info("======="+iterator.next());
+		}
+	}
+
+
+	@Resource
+	private JavaMailSenderImpl mailSender;
+	@Test
+	public void sendm(){
+		// 简单邮件发送
+		SimpleMailMessage mailMessage = new SimpleMailMessage();
+
+		mailMessage.setSubject("邮件标题");
+		mailMessage.setText("邮件内容");
+		mailMessage.setFrom("huaimin3@sina.com");
+		mailMessage.setTo("huaimin3@163.com");
+		mailMessage.setTo("huaimin3@sina.com");
+		mailSender.send(mailMessage);
+	}
+	@Test
+	public void sendm2(){
+		try {
+			// 复杂邮件发送，发送文件，并显示为 html 代码
+			MimeMessage mailMessage = mailSender.createMimeMessage();
+			MimeMessageHelper messageHelper = new MimeMessageHelper(mailMessage,true);
+
+			messageHelper.setSubject("邮件标题");
+			messageHelper.setText("<b>邮件内容</b>",true);
+			messageHelper.setFrom("huaimin3@sina.com");
+			messageHelper.setTo("huaimin3@163.com");
+
+			messageHelper.addAttachment("pictrue.jpg",new File("D:/pictrue.jpg"));
+			mailSender.send(mailMessage);
+		} catch (MessagingException e) {
+			e.printStackTrace();
 		}
 	}
 

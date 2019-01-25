@@ -38,4 +38,13 @@ spring:
     jest:
       uris: http://192.168.1.153:9200
 
-
+# 注意此邮箱密码不是真正的密码，而是邮箱设置中 POP3/SMTP等服务第三方登录的授权码
+  mail:
+    username: huaimin3@sina.com
+    password: abcdwdv
+    host: smtp.sina.com
+    properties:
+      mail:
+        smtp:
+          ssl:
+            enable: true
