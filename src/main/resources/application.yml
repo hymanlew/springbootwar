@@ -33,16 +33,27 @@ spring:
     maxPoolPreparedStatementPerConnectionSize: 20
     useGlobalDataSourceStat: true
     connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=500
+    continue-on-error: true
 
   jpa:
     properties:
       hibernate:
-#       更新或创建数据库表结构
+#     create-drop 表示当JPA应用的时候自动创建表，在解应用的时候删除相应的表，在测试时用，在开发过程中不这么用。
+#     create 这个在每次应用启动的时候都会创建数据库表（会删除以前数据库里的数据）。
+#     update 每次只会更新或创建数据库表结构。
         ddl-auto: update
 #       每次加载hibernate时，验证创建数据库表结构，只会和数据库中的表进行比较，不会创建新表，但是会插入新值。
         dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+        format-sql: true
+
 #   控制台输出 sql 语句
     show-sql: true
+    database: mysql
+
+#    Naming strategy 命名策略
+#    hibernate:
+#      naming:
+#        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyComponentPathImpl
 
   profiles:
     active: dev
