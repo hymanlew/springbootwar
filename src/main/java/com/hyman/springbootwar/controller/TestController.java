@@ -5,6 +5,7 @@ import com.hyman.springbootwar.entity.User;
 import com.hyman.springbootwar.service.UserService;
 import com.hyman.starter.HelloService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +32,10 @@ public class TestController {
     @GetMapping("/getUser/{id}")
     @ResponseBody
     public User getUser(@PathVariable Integer id){
-        User user =  userRepository.getOne(id);
+
+        // 这个是 JpaRepository 提供的方法
+        //User user =  userRepository.getOne(id);
+        User user =  userRepository.findById(id).get();
         return user;
     }
 

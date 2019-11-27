@@ -1,4 +1,4 @@
-package com.hyman.springbootwar.detailInstruct;
+package com.hyman.springbootwar.instruct;
 
 public class Instruction {
 
