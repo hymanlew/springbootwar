@@ -38,6 +38,13 @@
 			<!-- 必须指定为这个值，因为打包后就是 tomcat 环境中运行的 -->
 			<scope>provided</scope>
 		</dependency>
+
+		<!-- 引入其他的 Jetty 容器，它也可以作为一个 HTTP SERVER 来使用 -->
+		<!--<dependency>-->
+			<!--<artifactId>spring‐boot‐starter‐jetty</artifactId>-->
+			<!--<groupId>org.springframework.boot</groupId>-->
+		<!--</dependency>-->
+
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
@@ -174,6 +181,15 @@
 				<!-- 热部署插件设置 -->
 				<configuration>
 					<fork>true</fork>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>8</source>
+					<target>8</target>
 				</configuration>
 			</plugin>
 		</plugins>

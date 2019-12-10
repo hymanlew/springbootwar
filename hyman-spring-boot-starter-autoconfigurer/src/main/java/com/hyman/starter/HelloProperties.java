@@ -2,7 +2,9 @@ package com.hyman.starter;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-// 从全局配置文件中获取值，并将本类生成 HelloProperties 类
+/**
+ * 从全局配置文件中获取值，并将本类生成 HelloProperties 类
+ */
 @ConfigurationProperties(prefix = "hyman.hello")
 public class HelloProperties {
 

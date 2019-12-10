@@ -1,7 +1,5 @@
 package com.hyman.starter;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 public class HelloService {
 
     private HelloProperties properties;
