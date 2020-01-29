@@ -9,11 +9,11 @@ spring:
     username: root
     password: 123456
     type: com.alibaba.druid.pool.DruidDataSource
-    schema:
-      - classpath:sql/table.sql
-#      - classpath:sql/data.sql
+#   指定数据库的建表语句，或操作语句
+    schema: classpath:sql/table.sql
+    data: classpath:sql/data.sql
 
-# 如果是使用 boot 2.0 以上的版本，就必须加上下面一句，否则不会执行 sql 文件。
+    # 如果是使用 boot 2.0 以上的版本，就必须加上下面一句，否则不会执行 sql 文件。
     initialization-mode: always
 
 #   数据源其他配置
@@ -49,8 +49,10 @@ spring:
 #   控制台输出 sql 语句
     show-sql: true
     database: mysql
+#   是否自动生成 DDL sql 语句
+    generate-ddl: false
 
-#    Naming strategy 命名策略
+  #    Naming strategy 命名策略
 #    hibernate:
 #      naming:
 #        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyComponentPathImpl

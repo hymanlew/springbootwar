@@ -48,3 +48,15 @@ spring:
         smtp:
           ssl:
             enable: true
+
+# 配置根节点日志，hibernate 日志级别为 INFO
+logging:
+  level:
+    root: info
+    org.hibernate: info
+#   打印 sql 语句时，同时打印 sql 参数及值，与 show-sql 有一定的联系
+    org.hibernate.type.descriptor.sql.BasicBinder: trace
+    org.hibernate.type.descriptor.sql.BasicExtractor: trace
+
+spring.jpa.hibernate.ty
+
