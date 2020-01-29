@@ -58,5 +58,4 @@ logging:
     org.hibernate.type.descriptor.sql.BasicBinder: trace
     org.hibernate.type.descriptor.sql.BasicExtractor: trace
 
-spring.jpa.hibernate.ty
 
