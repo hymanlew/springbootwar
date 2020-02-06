@@ -5,11 +5,11 @@ import com.hyman.springbootwar.entity.Employee;
 import com.hyman.springbootwar.entity.User;
 import com.hyman.springbootwar.esconfig.EmpRepository;
 import com.hyman.springbootwar.service.UserService;
-import com.hyman.springbootwar.util.LogUtil;
 import io.searchbox.client.JestClient;
 import io.searchbox.core.Index;
 import io.searchbox.core.Search;
 import io.searchbox.core.SearchResult;
+import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.junit.Assert;
 import org.junit.Before;
@@ -33,6 +33,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Iterator;
 
+@Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class SpringbootwarApplicationTests {
@@ -42,10 +43,10 @@ public class SpringbootwarApplicationTests {
 	@Test
 	public void test0() {
 		try {
-			LogUtil.logger.info("====== "+dataSource.getClass());
+			log.info("====== "+dataSource.getClass());
 
 			Connection connection = dataSource.getConnection();
-			LogUtil.logger.info("====== "+connection);
+			log.info("====== "+connection);
 			connection.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -189,7 +190,7 @@ public class SpringbootwarApplicationTests {
 
 		user = new User("jgirl", 30);
 		myRedisTemplate.opsForValue().set(user.getName(),user);
-		LogUtil.logger.info("==== 存储对象成功 ====");
+		log.info("==== 存储对象成功 ====");
 	}
 
 
@@ -206,7 +207,7 @@ public class SpringbootwarApplicationTests {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		LogUtil.logger.info("==== 存储对象成功 ====");
+		log.info("==== 存储对象成功 ====");
 	}
 	@Test
 	public void searchES(){
@@ -222,7 +223,7 @@ public class SpringbootwarApplicationTests {
 		Search search = new Search.Builder(json).addIndex("hyman1").addType("users").build();
 		try {
 			SearchResult result = jestClient.execute(search);
-			LogUtil.logger.info("===== "+ result.getJsonString());
+			log.info("===== "+ result.getJsonString());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -238,7 +239,7 @@ public class SpringbootwarApplicationTests {
 		// 构建一个索引，索引（存储）的数据文档，索引库名，类型名，指定文档 id。
 		empRepository.index(employee);
 		//empRepository.save(employee);
-		LogUtil.logger.info("==== 存储对象成功 ====");
+		log.info("==== 存储对象成功 ====");
 
 		try {
 			Thread.sleep(1000);
@@ -250,7 +251,7 @@ public class SpringbootwarApplicationTests {
 		Iterable<Employee> searchResult = empRepository.search(builder);
 		Iterator<Employee> iterator = searchResult.iterator();
 		while (iterator.hasNext()){
-			LogUtil.logger.info("======="+iterator.next());
+			log.info("======="+iterator.next());
 		}
 	}
 

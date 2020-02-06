@@ -1,10 +1,11 @@
 package com.hyman.springbootwar.service;
 
-import com.hyman.springbootwar.util.LogUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class TaskService {
 
@@ -14,7 +15,7 @@ public class TaskService {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        LogUtil.logger.info(s);
+        log.info(s);
     }
 
     // 异步调用注解
@@ -25,7 +26,7 @@ public class TaskService {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        LogUtil.logger.info(s);
+        log.info(s);
     }
 
     /** MON-SUN
@@ -58,6 +59,6 @@ public class TaskService {
     //@Scheduled(cron = "0/5 * * * * ?")
     @Scheduled(cron = "0,1,2,3 * * * * 0-7")
     public void schedul(){
-        LogUtil.logger.info("===== 定时任务 =====");
+        log.info("===== 定时任务 =====");
     }
 }

@@ -1,8 +1,7 @@
 package com.hyman.springbootwar.config;
 
-import com.hyman.springbootwar.util.LogUtil;
 import com.hyman.springbootwar.util.RequestWrapper;
-//import org.apache.catalina.filters.RemoteIpFilter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.filters.RemoteIpFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
@@ -15,6 +14,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+
+//import org.apache.catalina.filters.RemoteIpFilter;
 
 /**
  * SpringBoot默认使用Tomcat作为嵌入式的Servlet容器：
@@ -33,6 +34,7 @@ import java.io.IOException;
  *
  * 5，springboot 还支持 Jetty（适合长连接，即实时聊天场景，），Undertow（不支持 JSP，但并发性好）两种 servlet 容器（见 pom 文件）。
  */
+@Slf4j
 @Configuration
 public class SeverConfiguration {
 
@@ -53,7 +55,7 @@ public class SeverConfiguration {
 
         @Override
         protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-            LogUtil.logger.info("============= 自定义 servlet");
+            log.info("============= 自定义 servlet");
             super.doPost(req, resp);
         }
     }
@@ -155,12 +157,12 @@ public class SeverConfiguration {
     public class MyListener implements ServletContextListener {
         @Override
         public void contextInitialized(ServletContextEvent servletContextEvent) {
-            LogUtil.logger.info("============= 自定义 listener ==== 服务器启动");
+            log.info("============= 自定义 listener ==== 服务器启动");
         }
 
         @Override
         public void contextDestroyed(ServletContextEvent servletContextEvent) {
-            LogUtil.logger.info("============= 自定义 listener ==== 服务器关闭");
+            log.info("============= 自定义 listener ==== 服务器关闭");
         }
     }
 }
