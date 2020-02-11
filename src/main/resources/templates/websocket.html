@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<!-- 必须加上这一句，否则 th 不可用 -->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+    <meta charset="UTF-8" />
+    <title>Title</title>
+</head>
+
+<body>
+<!--/*@thymesVar id="user" type="java.lang.String"*/-->
+<h1 th:text="${user}"></h1>
+<h2> websocket，hello world! </h2>
+</body>
+
+
+<%--WebSocket对象是H5新增的对象，低版本浏览器可能不支持，可以使用sockJs的方式连接 --%>
+<script src="//cdn.jsdelivr.net/sockjs/1.0.0/sockjs.min.js"></script>
+
+<script>
+    // 注意path的路径这个是请求的地址，ws://域名:端口/项目名/path
+
+    // webSocket连接，打开一个 websocket
+    var socket;
+    if (typeof (WebSocket) == "undefined") {
+        console.log("您的浏览器不支持WebSocket");
+    } else {
+        console.log("您的浏览器支持WebSocket");
+
+        // 实现化 WebSocket对象，指定要连接的服务器地址与端口建立连接
+        socket = new WebSocket("ws://localhost:8885/websocket/2");
+        //socket = new WebSocket("${basePath}websocket/${cid}".replace("http","ws"));
+
+        // 打开事件
+        socket.onopen = function () {
+            console.log("Socket 已打开");
+            // Web Socket 已连接上，使用 send() 方法发送数据
+            socket.send("这是来自客户端的消息" + location.href + new Date());
+        };
+
+        // 获得消息事件，并开始处理前端触发逻辑
+        socket.onmessage = function (msg) {
+            console.log('message', msg.data);
+        };
+
+        //关闭事件
+        socket.onclose = function () {
+            console.log("Socket已关闭");
+        };
+
+        //发生了错误事件
+        socket.onerror = function () {
+            alert("Socket发生了错误");
+            //此时也可以尝试刷新页面
+        }
+
+        //离开页面时，关闭socket
+        //jquery1.8中已经被废弃，3.0中已经移除
+        // $(window).unload(function(){
+        //     socket.close();
+        //});
+    }
+
+
+    // sockJs连接
+    var sock = new SockJS('http://localhost:8080/sock-js?user=Tony');
+    sock.onopen = function () {
+        sock.send("测试发送");
+        console.log('open');
+    };
+    sock.onmessage = function (e) {
+        console.log('message', e.data);
+    };
+    sock.onclose = function () {
+        console.log('close');
+    };
+</script>
+</html>

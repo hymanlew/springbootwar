@@ -3,10 +3,8 @@ package com.hyman.springbootwar.websocket;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.websocket.OnClose;
-import javax.websocket.OnMessage;
-import javax.websocket.OnOpen;
-import javax.websocket.Session;
+import javax.websocket.*;
+import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 
@@ -28,7 +26,7 @@ import java.io.IOException;
  * 可以通过 session.getBasicRemote().sendText(*) 来对客户端发送消息。
  */
 @Slf4j
-@ServerEndpoint("/myWs")
+@ServerEndpoint("/myWs/{sid}")
 @Component
 public class WsServerEndpoint {
 
@@ -38,8 +36,8 @@ public class WsServerEndpoint {
      * @param session
      */
     @OnOpen
-    public void onOpen(Session session) {
-        log.info("连接成功");
+    public void onOpen(Session session, @PathParam("sid") String sid) {
+        log.info("连接成功" + sid);
     }
 
     /**
@@ -61,4 +59,18 @@ public class WsServerEndpoint {
     public String onMsg(String text) throws IOException {
         return "servet 发送：" + text;
     }
+
+    @OnError
+    public void onError(Session session, Throwable error) {
+        log.error("发生错误");
+        error.printStackTrace();
+    }
+
+    /**
+     * 实现服务器主动推送
+     */
+    public void activeSendMessage(Session session, String message) throws IOException {
+        session.getBasicRemote().sendText(message);
+    }
+
 }

@@ -1,9 +1,8 @@
 package com.hyman.springbootwar.websocket;
 
-import antlr.StringUtils;
-import io.netty.handler.codec.http.HttpUtil;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
+import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
@@ -16,6 +15,7 @@ import java.util.Map;
  * 握手前与握手后，而 HttpAuthHandler 是在握手成功后的基础上建立 socket 的连接。所以在如果把认证放在这个步骤相对来说最节省服务
  * 器资源。
  * 它主要有两个方法 beforeHandshake 与 afterHandshake，顾名思义一个在握手前触发，一个在握手后触发。
+ * attributes 属性最终在 WebSocketSession 里，可通过 webSocketSession.getAttributes().get(key值) 获得。
  */
 @Component
 public class MyInterceptor implements HandshakeInterceptor {
@@ -32,20 +32,28 @@ public class MyInterceptor implements HandshakeInterceptor {
      */
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
-        System.out.println("握手开始");
 
-        // 获得请求参数
-        //HashMap<String, String> paramMap = HttpUtil.decodeParamMap(request.getURI().getQuery(), "utf-8");
-        Map<String, String> paramMap = getStringToMap(request.getURI().getQuery());
-        String uid = paramMap.get("token");
-        if (uid != null && !"".equals(uid)) {
-            // 放入属性域
-            attributes.put("token", uid);
-            System.out.println("用户 token " + uid + " 握手成功！");
-            return true;
+        if (request instanceof ServletServerHttpRequest) {
+            System.out.println("握手开始");
+
+            // 获得请求参数
+            ServletServerHttpRequest serverHttpRequest = (ServletServerHttpRequest) request;
+            String token = serverHttpRequest.getServletRequest().getParameter("token");
+
+            //HashMap<String, String> paramMap = HttpUtil.decodeParamMap(request.getURI().getQuery(), "utf-8");
+            Map<String, String> paramMap = getStringToMap(request.getURI().getQuery());
+            String uid = paramMap.get("token");
+            if (uid != null && !"".equals(uid)) {
+                // 放入属性域
+                attributes.put("token", uid);
+                System.out.println("用户 token " + uid + " 握手成功！");
+                return true;
+            }
+            System.out.println("用户登录已失效");
+            return false;
+        } else {
+            return false;
         }
-        System.out.println("用户登录已失效");
-        return false;
     }
 
     /**
@@ -66,10 +74,13 @@ public class MyInterceptor implements HandshakeInterceptor {
         if (null == str || "".equals(str)) {
             return null;
         }
+
         //根据&截取
         String[] strings = str.split("&");
+
         //设置HashMap长度
         int mapLength = strings.length;
+
         //判断hashMap的长度是否是2的幂。
         if ((strings.length % 2) != 0) {
             mapLength = mapLength + 1;
