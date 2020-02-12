@@ -18,7 +18,7 @@ import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 public class WebSocketConfig implements WebSocketConfigurer {
 
     @Autowired
-    private HttpAuthHandler httpAuthHandler;
+    private WebSocketHandler httpAuthHandler;
     @Autowired
     private MyInterceptor myInterceptor;
 

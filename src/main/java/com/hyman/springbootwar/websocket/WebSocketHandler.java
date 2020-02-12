@@ -19,7 +19,7 @@ import javax.websocket.server.ServerEndpoint;
 @ServerEndpoint("/websocket/{sid}")
 @Component
 @Slf4j
-public class HttpAuthHandler extends TextWebSocketHandler {
+public class WebSocketHandler extends TextWebSocketHandler {
 
     /**
      * 与某个客户端的连接会话，需要通过它来给客户端发送数据

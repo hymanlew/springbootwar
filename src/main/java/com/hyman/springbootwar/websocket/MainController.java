@@ -11,6 +11,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * websocket 存储 session（适合聊天，转发，广播，服务器主动发送消息）。即只是将 websocket 中的 session 提取并存储起来，便于
+ * 用户之间的互动与查找，其实就是解耦合。
+ *
  * 浏览器debug访问 localhost:8885/main/page/1 跳转到 websocket.html，页面中的 js 会自动连接server并传递 sid 到服务端，服务
  * 端对应的推送消息到客户端页面（sid 区分不同的请求，server里提供的有群发消息方法）
  */
