@@ -35,7 +35,7 @@ public class MainController {
     public Map pushToWeb(@PathVariable String cid, String message) {
         Map result = new HashMap();
         try {
-            TalkerRoomManager.send(cid, message);
+            TalkerRoomManager.send(new Talker(), message);
             result.put("code", 200);
             result.put("msg", "success");
         } catch (Exception e) {
