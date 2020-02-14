@@ -38,8 +38,7 @@ public class CacheProvider {
     }
 
     public static <T> T get(String key, Class<T> clazz) {
-        Gson gson = new Gson();
-        return gson.fromJson(get(key), clazz);
+        return GsonUtil.getGson().fromJson(get(key), clazz);
     }
 
     public static String get(String key) {

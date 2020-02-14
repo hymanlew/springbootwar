@@ -1,5 +1,6 @@
 package com.hyman.springbootwar.websocket;
 
+import com.hyman.springbootwar.util.CacheProvider;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,11 +32,11 @@ public class MainController {
 
     //推送数据接口
     @ResponseBody
-    @RequestMapping("/socket/push/{sid}")
-    public Map pushToWeb(@PathVariable String cid, String message) {
+    @RequestMapping("/socket/push/{liveId}")
+    public Map pushToWeb(@PathVariable String liveId, String message) {
         Map result = new HashMap();
         try {
-            TalkerRoomManager.send(new Talker(), message);
+            CacheProvider.get(liveId);
             result.put("code", 200);
             result.put("msg", "success");
         } catch (Exception e) {

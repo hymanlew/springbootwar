@@ -67,13 +67,6 @@ public class MyInterceptor implements HandshakeInterceptor {
     @Override
     public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Exception exception) {
         System.out.println("握手完成");
-
-        // 用户连接成功，放入本地在线用户缓存
-        //WsSessionManager.add(session.getId(), session);
-
-        // 用户连接成功，放入 redis
-        //CacheProvider.set(session.getId(), session);
-
     }
 
     public static Map<String, String> getStringToMap(String str) {

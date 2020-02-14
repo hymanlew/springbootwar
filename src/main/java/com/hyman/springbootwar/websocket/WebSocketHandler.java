@@ -57,6 +57,10 @@ public class WebSocketHandler extends TextWebSocketHandler {
             if (token != null) {
                 Talker talker = getTalker(session);
 
+                // 用户连接成功，放入本地在线用户缓存
+                // 用户连接成功，放入 redis
+                //CacheProvider.set(session.getId(), session);
+
                 //创建房间并加入session
                 TalkerRoomManager.creatRoom(session, talker);
             } else {
