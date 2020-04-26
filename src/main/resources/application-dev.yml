@@ -59,6 +59,11 @@ spring:
           ssl:
             enable: true
 
+
+elasticsearch:
+  hosts: 192.168.10.40:9200,192.168.10.95:9200
+
+
 # 配置根节点日志，hibernate 日志级别为 INFO
 logging:
   level:

@@ -1,9 +1,13 @@
 package com.hyman.springbootwar.esconfig;
 
+import org.apache.http.HttpHost;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,9 +15,13 @@ import javax.annotation.PostConstruct;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-
+/**
+ * 第二种方式集成 ES：
+ * 这个方式就是和Spring框架深度集成,类似将RestHighLevelClient类的生命周期交给Spring区管理, 优点是使用方便直接使用@Autowired注解就可以获取到对象.缺点是相对的复杂.
+ */
 @Configuration
 public class ElasticSearchConfig {
+
     /**
      * springboot 默认支持两种技术和 ES（ElasticSearch）交互：
      * 1，jest（但不默认生效，是不使用的，需要导入 io.searchbox.client.JestClient，配置 spring.elasticsearch.jest）
@@ -46,35 +54,88 @@ public class ElasticSearchConfig {
          2.0.x	                    2.2.0
          1.3.x	                    1.5.2
      */
-    @Bean
-    public TransportClient transportClient() {
 
-        /**
-         * 注意：当 ES 服务器监听(publish_address )使用内网服务器IP，而访问(bound_addresses )使用外网 IP 时（yml 去掉注释后默认的
-         * 配置），不要设置 client.transport.sniff为true，默认为false(关闭客户端去嗅探整个集群的状态)。因为在自动发现时会使用内网 IP
-         * 进行通信，导致无法连接到 ES服务器。因此此时需要直接使用 addTransportAddress 方法把集群中其它机器的 ip 地址加到客户端中。
-         *
-         * 并且必须要修改默认的配置，开启 TransportClient 外网连接（0.0.0.0 不限制 IP），否则无法连接，找不到节点。
-         */
-        TransportClient client = null;
-        try {
-            Settings settings = Settings.builder()
-                    .put("cluster.name", "elasticsearch")
-                    // 不指定节点名称，自动适配
-                    //.put("client.transport.ignore_cluster_name",true)
-                    // sniff：嗅探
-                    //.put("client.transport.sniff", true)
-                    .build();
+    /**
+     * 注意：当 ES 服务器监听(publish_address )使用内网服务器IP，而访问(bound_addresses )使用外网 IP 时（yml 去掉注释后默认的
+     * 配置），不要设置 client.transport.sniff为true，默认为false(关闭客户端去嗅探整个集群的状态)。因为在自动发现时会使用内网 IP
+     * 进行通信，导致无法连接到 ES服务器。因此此时需要直接使用 addTransportAddress 方法把集群中其它机器的 ip 地址加到客户端中。
+     *
+     * 并且必须要修改默认的配置，开启 TransportClient 外网连接（0.0.0.0 不限制 IP），否则无法连接，找不到节点。
+     */
 
-            //创建client
-            client  = new PreBuiltTransportClient(settings)
-                    //.addTransportAddress(new TransportAddress(InetAddress.getByName("IP"), 9300))
-                    .addTransportAddress(new TransportAddress(InetAddress.getByName("192.168.1.153"), 9300));
 
-        } catch (Exception e) {
-            client.close();
-            e.printStackTrace();
+    /**
+     * <li>hosts :配置的值 </li>
+     */
+    @Value("${elasticsearch.hosts}")
+    private String[] hosts;
+
+    /**
+     * <li>restHighLevelClient :restHighLevel客户端 </li>
+     */
+    private RestHighLevelClient restHighLevelClient;
+
+    /**
+     * 返回实例
+     * @return RestHighLevelClient
+     * @throws Exception 异常信息
+     */
+    @Override
+    public RestHighLevelClient getObject() throws Exception {
+        return this.restHighLevelClient;
+    }
+
+    /**
+     * 反射
+     *
+     * @return RestHighLevelClient.class
+     */
+    @Override
+    public Class<?> getObjectType() {
+        return RestHighLevelClient.class;
+    }
+
+    /**
+     * 客户端是否单例
+     * @return true
+     */
+    @Override
+    public boolean isSingleton() {
+        return true;
+    }
+
+    /**
+     * 客户端实例的销毁
+     * @throws Exception 异常信息
+     */
+    @Override
+    public void destroy() throws Exception {
+        if (restHighLevelClient != null) {
+            restHighLevelClient.close();
         }
-        return client;
+    }
+
+    /**
+     * 注入参数
+     * @throws Exception 异常信息
+     */
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        restHighLevelClient = buildClient();
+    }
+
+    /**
+     * <li>Description: 自定义的构造方法 </li>
+     *
+     * @return RestHighLevelClient
+     */
+    private RestHighLevelClient buildClient() {
+        try {
+            //这里的builder方法有两个方式,第一个是传入Node(包含了多个节点,需要密码这些,我们没有配置,就暂时不需要),第二个就是传入HttpHost
+            restHighLevelClient = new RestHighLevelClient(RestClient.builder(HttpHost.create(hosts[0]), HttpHost.create(hosts[1])));
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+        return restHighLevelClient;
     }
 }

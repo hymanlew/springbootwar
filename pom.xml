@@ -152,14 +152,17 @@
         全文检索，Spring Boot 通过整合 Spring Data ElasticSearch 提供了非常便捷的检索功能支持（默认的）。
 
         Elasticsearch JAVA操作有三种客户端：
-            1、TransportClient。2、JestClient。3、RestClient
+            1、TransportClient。
+            2、JestClient。
+            3、RestClient
 
-        Java与ElasticSearch连接的两种方式：（1）使用Transport与ElasticSearch建立连接。（2）使用SpringDataElasticSearch连接连接
+        Java 与 ElasticSearch 连接的两种方式：
+            1，使用 Transport 与 ElasticSearch 建立连接。
+            2，使用 SpringDataElasticSearch 连接。
 
         两种方式的优缺点：
-        （1）优点：脱离框架，集成过程中不需要考虑与Spring的版本兼容问题，容易集成。缺点：使用原生API操作ES，代码量大，撰写困难
-
-        （2）优点：将原生API进行封装，提供了ElasticsearchRepository，操作ES非常简单，与JPA同理。缺点：出生于Spring家族，与SpringBoot，SpringData版本容易冲突
+            1，优点：脱离框架，集成过程中不需要考虑与Spring的版本兼容问题，容易集成。缺点：使用原生API操作ES，代码量大，撰写困难。
+            2，优点：将原生API进行封装，提供了 ElasticsearchRepository，操作ES非常简单，与JPA同理。缺点：出生于Spring家族，与SpringBoot，SpringData版本容易冲突。
 
         修改 docker 容器中 config 中的 elasticsearch.yml文件（最好只做修改不要随便添加，只删除注释即可）：
             cluster.name: 集群名称
@@ -178,11 +181,36 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.elasticsearch</groupId>
+                    <artifactId>elasticsearch</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.elasticsearch.client</groupId>
+                    <artifactId>elasticsearch-rest-client</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.elasticsearch.client</groupId>
+                    <artifactId>elasticsearch-rest-high-level-client</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- ES 的 jest 所需包 -->
         <dependency>
             <groupId>io.searchbox</groupId>
             <artifactId>jest</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.elasticsearch</groupId>
+            <artifactId>elasticsearch</artifactId>
+            <version>7.5.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>elasticsearch-rest-high-level-client</artifactId>
+            <version>7.5.1</version>
         </dependency>
 
         <!-- 邮件功能 -->
