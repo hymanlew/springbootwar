@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.1.2.RELEASE</version>
+        <version>2.2.3.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.hyman</groupId>
@@ -151,13 +151,13 @@
         <!--
         全文检索，Spring Boot 通过整合 Spring Data ElasticSearch 提供了非常便捷的检索功能支持（默认的）。
 
-        Elasticsearch JAVA操作有三种客户端：
+        Elasticsearch JAVA操作有三种客户端（推荐第三种）：
             1、TransportClient。
             2、JestClient。
             3、RestClient
 
         Java 与 ElasticSearch 连接的两种方式：
-            1，使用 Transport 与 ElasticSearch 建立连接。
+            1，使用 RestClient 与 ElasticSearch 建立连接。
             2，使用 SpringDataElasticSearch 连接。
 
         两种方式的优缺点：
@@ -178,9 +178,11 @@
 
         打印查看 es 服务器上的日志，boot 中的日志，从 parent 中看版本号
             -->
+        <!-- 要特别注意，一定要安装当前 springboot data 指定的或以下的 ES 版本，否则不适配无法正常使用。在 parent 中查看集成的 ES 版本。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+            <!-- 默认自带的版本是 6.8.4 -->
             <exclusions>
                 <exclusion>
                     <groupId>org.elasticsearch</groupId>

@@ -139,7 +139,6 @@ public class LettuceUitl {
             connect.async().setbit("signIn", i, 1);
         }
 
-
         try {
             /**
              * RedisFuture<T> 和 CompleteableFuture<T> 简介：

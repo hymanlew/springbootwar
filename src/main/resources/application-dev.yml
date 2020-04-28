@@ -60,9 +60,12 @@ spring:
             enable: true
 
 
+# ElasticSearch 服务默认端口9300。
+# Web 管理平台端口 9200。
 elasticsearch:
   hosts: 192.168.10.40:9200,192.168.10.95:9200
-
+  host: localhost
+  port: 9200
 
 # 配置根节点日志，hibernate 日志级别为 INFO
 logging:
