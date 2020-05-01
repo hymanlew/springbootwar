@@ -34,6 +34,13 @@ public class ElasticServiceUtils {
      */
     private final static Logger logger = LoggerFactory.getLogger(ElasticServiceUtils.class);
 
+    /**
+     * Java 高级别REST客户端（The Java High Level REST Client），内部仍然是基于低级客户端。它提供了更多的API，接受请求对象作
+     * 为参数并返回响应对象，由客户端自己处理编码和解码。
+     * 每个API都可以同步或异步调用。 同步方法返回一个响应对象，而异步方法的名称以async后缀结尾，需要一个监听器参数，一旦收到响
+     * 应或错误，就会被通知（由低级客户端管理的线程池）。
+     * 高级客户端依赖于Elasticsearch core项目。 它接受与TransportClient相同的请求参数并返回相同的响应对象。
+     */
     private RestHighLevelClient restHighLevelClient;
 
     /**
