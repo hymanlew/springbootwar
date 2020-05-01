@@ -9,9 +9,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * 当直接在ElasticSearch 建立文档对象时，如果索引不存在的，默认会自动创建，映射采用默认方式。
@@ -23,11 +26,15 @@ public class ElasticServiceUtils {
     /**
      * hosts :配置的值
      */
-    @Value("${elasticsearch.host}")
-    private String host;
+    @Value("${elasticsearch.hosts}")
+    private String hostAddress;
 
-    @Value("${elasticsearch.port}")
-    private Integer port;
+    /**
+     * 确保地址为ip+端口形式
+     */
+    private final static Integer ADDRESS_LENGTH = 2;
+
+    private static final String HTTP_SCHEME = "http";
 
     /**
      * logger :SLF4J日志
@@ -65,14 +72,24 @@ public class ElasticServiceUtils {
                 restHighLevelClient.close();
             }
 
-            // 可以同时创建多个节点
-            HttpHost node1 = new HttpHost(host, port, "http");
+            if (StringUtils.isEmpty(hostAddress)) {
+                logger.error("ipAddress is null");
+                throw new RuntimeException("ipAddress is null");
+            }
+
+            // 根据多地址组装hosts，同时创建多个节点
+            HttpHost[] hosts = Arrays.stream(hostAddress.split(","))
+                    .map(this::makeHttpHost)
+                    .filter(Objects::nonNull)
+                    .toArray(HttpHost[]::new);
+
+            //HttpHost node1 = new HttpHost(host, port, "http");
 
             // builder 方法有两个入参。第一个是传入 Node(可以包含多个节点，也可以设置密码)。第二个就是传入 HttpHost。
-            RestClientBuilder builder = RestClient.builder(node1);
-            restHighLevelClient = new RestHighLevelClient(builder);
+            //RestClientBuilder builder = RestClient.builder(node1);
 
-            //restHighLevelClient = new RestHighLevelClient(RestClient.builder(HttpHost.create(hosts[0]), HttpHost.create(hosts[1])));
+            RestClientBuilder builder = RestClient.builder(hosts);
+            restHighLevelClient = new RestHighLevelClient(builder);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -81,12 +98,19 @@ public class ElasticServiceUtils {
         return restHighLevelClient;
     }
 
+    /**
+     * 组装 HttpHost 对象
+     */
+    private HttpHost makeHttpHost(String ipAddress) {
+        assert !StringUtils.isEmpty(ipAddress);
 
-    //省略创建索引更新索引等代码,官网有具体的例子.
-    //官网地址: https://www.elastic.co/guide/en/elasticsearch/client/java-rest/current/java-rest-high-document-index.html
-
-
-    public void v1(){
-
+        String[] address = ipAddress.split(":");
+        if (address.length == ADDRESS_LENGTH) {
+            String ip = address[0];
+            int port = Integer.parseInt(address[1]);
+            return new HttpHost(ip, port, HTTP_SCHEME);
+        } else {
+            return null;
+        }
     }
 }
