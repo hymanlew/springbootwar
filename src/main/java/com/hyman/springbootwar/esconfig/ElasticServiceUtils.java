@@ -17,8 +17,125 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * 当直接在ElasticSearch 建立文档对象时，如果索引不存在的，默认会自动创建，映射采用默认方式。
+ * 最初将索引比成数据库，将Type类型比成表。这是一个错误的类比，导致了错误的假设。在SQL数据库中，表是相互独立的。一个表中的列与
+ * 另一个表中具有相同名称的列没有关系。但这与映射类型中的字段不同。在 Elasticsearch 索引中，不同映射类型中具有相同名称的字段在
+ * 内部由相同的 Lucene 字段支持。例如 user 类型中的 name 字段存储在与 person类型中的 name字段完全相同的字段中，而且两个 name
+ * 字段在两种类型中必须具有相同的映射（定义）。
+ * 如此，当删除同一索引中的一个类型的日期字段和另一个类型的布尔字段时，这可能会导致问题。最重要的是，存储在同一索引中具有很少或
+ * 没有字段的不同实体会导致数据稀疏，并影响 Lucene 有效压缩文档的能力。基于这些原因，ES7.0 决定将映射类型的概念从 Elasticsearch 中移除。
  *
+ * 映射类型编辑的替代方案，按文档类型编辑索引：
+ * 1，第一种方法是为每个文档类型建立一个索引。可以将 person存储在 person索引中，而将用户存储在用户索引中，而不是将两种文档存储
+ * 在单个索引中。索引之间是完全独立的，因此在索引之间不存在字段类型的冲突。这种方 法有两个好处：
+ * 数据更可能是密集的，因此受益于 Lucene 中使用的压缩技术。
+ * 用于在全文搜索中评分的术语统计信息更有可能是准确的，因为同一索引中的所有文档都表示单个实体。
+ * 每个索引都可以根据其包含的文档数量适当调整大小，调整主碎片的多少。
+ *
+ * 2，自定义类型 fieldedit：
+ * 集群中可以存在多少主碎片是有限制的，因此不能为了收集几千个文档而浪费整个碎片。这时就可以实现自己的自定义类型字段，其工作方式
+ * 与旧的 _type 类似。以用户 /tweet 为例。最初，工作流应该是这样的:
+ PUT twitter
+ {
+ "mappings": {
+ "user": {
+ "properties": {
+ "name": { "type": "text" },
+ "user_name": { "type": "keyword" },
+ "email": { "type": "keyword" }
+ }
+ },
+ "tweet": {
+ "properties": {
+ "content": { "type": "text" },
+ "user_name": { "type": "keyword" },
+ "tweeted_at": { "type": "date" }
+ }
+ }
+ }
+ }
+
+ PUT twitter/user/kimchy
+ {
+ "name": "Shay Banon",
+ "user_name": "kimchy",
+ "email": "shay@kimchy.com"
+ }
+
+ PUT twitter/tweet/1
+ {
+ "user_name": "kimchy",
+ "tweeted_at": "2017-10-24T09:00:00Z",
+ "content": "Types are going away"
+ }
+
+ GET twitter/tweet/_search
+ {
+ "query": {
+ "match": {
+ "user_name": "kimchy"
+ }
+ }
+ }
+
+ 现在，可以通过添加自定义类型字段来实现相同的功能，如下所示:
+ PUT twitter
+ {
+ "mappings": {
+ "_doc": {
+ "properties": {
+ "type": { "type": "keyword" },
+ "name": { "type": "text" },
+ "user_name": { "type": "keyword" },
+ "email": { "type": "keyword" },
+ "content": { "type": "text" },
+ "tweeted_at": { "type": "date" }
+ }
+ }
+ }
+ }
+
+ PUT twitter/_doc/user-kimchy
+ {
+ "type": "user",
+ "name": "Shay Banon",
+ "user_name": "kimchy",
+ "email": "shay@kimchy.com"
+ }
+
+ PUT twitter/_doc/tweet-1
+ {
+ "type": "tweet",
+ "user_name": "kimchy",
+ "tweeted_at": "2017-10-24T09:00:00Z",
+ "content": "Types are going away"
+ }
+
+ GET twitter/_search
+ {
+ "query": {
+ "bool": {
+ "must": {
+ "match": {
+ "user_name": "kimchy"
+ }
+ },
+ "filter": {
+ "match": {
+ "type": "tweet"
+ }
+ }
+ }
+ }
+ }
+
+ * 以前，父子关系通过将一个映射类型表示为父类型，将一个或多个其他映射类型表示为子类型。没有类型，我们就不能再使用这种语法。除了
+ * 示文档之间关系的方式已更改为使用新的连接字段外，父子功能将继续像以前一样工作。
+ * ES7.0 不赞成在请求中指定类型。且索引文档不再需要文档类型。对于显式id，新的索引 api 是 PUT {index}/_doc/{id}。对于自动生成
+ * 的id，则是 POST {index}/_doc。注意，在7.0中 _doc是路径的永久部分，它表示端点名称，而不是文档类型。
+ * 索引创建、索引模板和映射 api 中的 include_type_name 参数默认为 false。在所有的设置参数将提示一个弃用警告。并且删除了 _default_
+ * 映射类型。
+ *
+ * 将多类型索引迁移到单类型编辑：Reindex API 可用于将多类型索引转换为单类型索引。
  */
 @Component
 public class ElasticServiceUtils {

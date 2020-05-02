@@ -40,6 +40,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 当直接在ElasticSearch 建立文档对象时，如果索引不存在的，默认会自动创建，映射采用默认方式。
+ *
+ */
 @Slf4j
 @RestController
 @RequestMapping(value = "es")
@@ -438,7 +442,8 @@ public class EsCrud {
                 "ctx._source.field += params.count", parameters);
         request.script(inline);
 
-        // 使用部分文档进行更新，该部分内容会与已经存在的文档进行合并。且 doc 方法也可以接收一个 map 参数，它会自动转换为 json。
+        // 使用部分文档进行更新，对没有的字段添加, 对已有的字段替换。该部分内容会与已经存在的文档进行合并。且 doc 方法也可以接
+        // 收一个 map 参数，它会自动转换为 json。
         String jsonString = "{" +
                 "\"updated\":\"2017-01-01\"," +
                 "\"reason\":\"test update\"" +
@@ -448,7 +453,7 @@ public class EsCrud {
 
         // 如果该文档尚不存在，则可以使用 upsert 方法将参数作为新文档插入。与上述普通更新的方法相同，upsert 方法也可以使用
         // String，Map，XContentBuilder，Object 键对，或 IndexRequest作为入参，来定义 upsert 文档的内容。
-        // 并且如果上述 doc 方法正常执行了（即对已有文档进行了更新），则此方法就不会被执行。反之，亦然。
+        // 更新时，查找不到对应的数据，则添加 IndexRequest 内容，查找到则按照 UpdateRequest 更新。
         String jsonInsert = "{\"created\":\"2017-01-01\"}";
         request.upsert(jsonInsert, XContentType.JSON);
 
@@ -522,6 +527,20 @@ public class EsCrud {
         return true;
     }
 
+    /**
+     * 分布式搜索机制，Elasticsearch的搜索分为两步：
+     * 第一步-Query。
+     * 第二部-Fetch（获取），用户发出搜索请求到 ES节点，节点搜到请求后，会以 Coordinating 节点身份在6个主副本分片中（默认分片数）随
+     * 机选择几个分片，发出查询请求。Es 查询的时候，默认是随机从一些分片中查询数据，可以通过配置让 es从某些分片中查询数据。
+     * 被选中的分片执行查询，进行排序。然后每个分片都会返回 From+Size 个排序后文档 id和排序值给 Coordinating 节点。Coordinating 节
+     * 点会将 Query阶段从每个分片获取的排序后的文档 Id列表，重新进行排序。选取 From到 From + Size个文档的ID，以 multi get 请求的方式，
+     * 到相应的分片获取详细的文档数据。
+     *
+     * Query Then Fetch 的潜在问题：
+     * 1，性能问题：每个分片上需要查的文档个数= From + Size，最终协调节点需要处理：number_of_shard * (From+size)，深度分页。
+     * 2，相关性算分：每一个都基于自己上分片数据进行相关度算分。这会导致大分偏离的情况，特别是数据量很少时，相关性算分在分片之间是相互
+     * 独立，当文档总数很少情况下，如果主分片大于1，主分片数越多，相关性算法越不准。
+     */
     private boolean multiGet(Map<String, String> searchMap){
 
         // 对多个索引进行文档搜索，indexname，docId，并禁止对源文档进行搜索（默认是开启的）。
